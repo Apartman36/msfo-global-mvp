@@ -1,0 +1,17 @@
+accountCode,accountName,accountType,debit,credit,balance,currency
+PPE-100,Property plant and equipment,asset,14000000,0,14000000,ZMW
+PPE-190,Accumulated depreciation,asset,0,4000000,4000000,ZMW
+INV-100,Inventory,asset,11000000,0,11000000,ZMW
+AR-100,Trade receivables,asset,6000000,0,6000000,ZMW
+CASH-100,Cash at bank,asset,1500000,0,1500000,ZMW
+AP-100,Trade payables,liability,0,7000000,7000000,ZMW
+LOAN-100,Bank loan,liability,0,5000000,5000000,ZMW
+TAX-100,Taxes payable,liability,0,1100000,1100000,ZMW
+CAP-100,Share capital,equity,0,2000000,2000000,ZMW
+RE-100,Retained earnings,equity,0,7000000,7000000,ZMW
+REV-100,Revenue,income,0,60000000,60000000,ZMW
+COS-100,Cost of sales,expense,31000000,0,31000000,ZMW
+OPEX-100,Operating expenses,expense,9000000,0,9000000,ZMW
+RENT-100,Warehouse rent,expense,2400000,0,2400000,ZMW
+FX-100,Foreign exchange loss,expense,800000,0,800000,ZMW
+TAX-900,Income tax expense,expense,1900000,0,1900000,ZMW

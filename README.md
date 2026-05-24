@@ -109,6 +109,17 @@ npm run build
 - [THESIS_MAPPING.md](docs/THESIS_MAPPING.md)
 - [TEST_REPORT.md](docs/TEST_REPORT.md)
 
+## Демонстрационные материалы
+
+- [FRIEND_HANDOFF.md](docs/demo/FRIEND_HANDOFF.md)
+- [LAUNCH_GUIDE.md](docs/demo/LAUNCH_GUIDE.md)
+- [TEACHER_TALK_TRACK.md](docs/demo/TEACHER_TALK_TRACK.md)
+- [VIDEO_DEMO_SCRIPT.md](docs/demo/VIDEO_DEMO_SCRIPT.md)
+- [SCREENSHOT_PLAN.md](docs/demo/SCREENSHOT_PLAN.md)
+- [PROJECT_STRUCTURE.md](docs/demo/PROJECT_STRUCTURE.md)
+- [DEMO_LIMITATIONS.md](docs/demo/DEMO_LIMITATIONS.md)
+- [ONE_PAGE_SUMMARY.md](docs/demo/ONE_PAGE_SUMMARY.md)
+
 ## English Summary
 
 MSFO.Global is an educational local MVP that demonstrates a simplified workflow for transforming local accounting trial balances into IFRS-style financial statements for Russia and Zambia. It uses Next.js, TypeScript, Tailwind CSS, localStorage fixtures, deterministic demo IFRS rules, charts, tables, and Excel/JSON/XML exports. It is not an audit-grade IFRS system.

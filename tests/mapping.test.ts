@@ -9,7 +9,7 @@ describe("mapping engine", () => {
     const mappings = createDefaultMappings(entries);
     const grouped = groupAccountsByIfrsLine(entries, mappings);
 
-    expect(grouped.get("PL_REVENUE")).toBe(320_000_000);
+    expect(grouped.get("PL_REVENUE")).toBe(360_000_000);
     expect(grouped.get("SOFP_PPE")).toBe(43_000_000);
     expect(grouped.get("SOFP_CASH")).toBe(14_400_000);
   });

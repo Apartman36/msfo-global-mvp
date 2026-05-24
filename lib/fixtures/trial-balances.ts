@@ -201,8 +201,8 @@ export const trialBalances: Record<string, TrialBalanceEntry[]> = {
       accountName: "Выручка",
       accountType: "income",
       debit: 0,
-      credit: 320_000_000,
-      balance: 320_000_000,
+      credit: 360_000_000,
+      balance: 360_000_000,
       currency: "RUB",
     },
     {
@@ -369,8 +369,8 @@ export const trialBalances: Record<string, TrialBalanceEntry[]> = {
       accountName: "Revenue",
       accountType: "income",
       debit: 0,
-      credit: 48_000_000,
-      balance: 48_000_000,
+      credit: 60_000_000,
+      balance: 60_000_000,
       currency: "ZMW",
     },
     {

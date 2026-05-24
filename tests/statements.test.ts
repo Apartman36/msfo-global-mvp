@@ -18,4 +18,23 @@ describe("statement generation", () => {
     expect(statements.cashFlow.length).toBeGreaterThan(0);
     expect(statements.profitLoss.some((line) => line.code === "PL_NET_PROFIT")).toBe(true);
   });
+
+  it("keeps demo IFRS net profit positive while below local profit", () => {
+    const demoTargets = [
+      { company: companies[0], min: 15_000_000, max: 30_000_000 },
+      { company: companies[1], min: 2_000_000, max: 4_000_000 },
+    ];
+
+    for (const { company, min, max } of demoTargets) {
+      const entries = trialBalances[company.id];
+      const mappings = createDefaultMappings(entries);
+      const adjustments = applySimplifiedIfrsRules(company, entries);
+      const statements = generateStatements(entries, mappings, adjustments);
+      const netProfit = statements.profitLoss.find((line) => line.code === "PL_NET_PROFIT");
+
+      expect(netProfit?.amountIfrs).toBeGreaterThan(min);
+      expect(netProfit?.amountIfrs).toBeLessThan(max);
+      expect(netProfit?.amountIfrs).toBeLessThan(netProfit?.amountLocal ?? 0);
+    }
+  });
 });
