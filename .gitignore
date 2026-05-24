@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local verification / smoke-check artifacts
+CHECK_OUTPUT.txt
+ROUTES_OUTPUT.txt
+TREE.txt
+start-server.out.log
+start-server.err.log
+msfo-global-mvp-review.zip
+CLAUDE_REVIEW.md
