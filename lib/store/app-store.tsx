@@ -4,9 +4,8 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
   type PropsWithChildren,
 } from "react";
 import { companies } from "@/lib/fixtures/companies";
@@ -25,6 +24,7 @@ import type {
 } from "@/lib/types";
 
 const STORAGE_KEY = "msfo-global-state-v1";
+const STORE_EVENT = "msfo-global-state-change";
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -58,21 +58,75 @@ function createInitialState(role: UserRole = "analyst"): AppState {
   };
 }
 
-function loadInitialState() {
+const serverStateSnapshot = createInitialState();
+let cachedRawSnapshot: string | null | undefined;
+let cachedStateSnapshot: AppState | null = null;
+
+function getStoredStateSnapshot() {
   if (typeof window === "undefined") {
-    return createInitialState();
+    return serverStateSnapshot;
   }
 
-  const raw = window.localStorage.getItem(STORAGE_KEY);
+  let raw: string | null;
+  try {
+    raw = window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return serverStateSnapshot;
+  }
+
+  if (raw === cachedRawSnapshot && cachedStateSnapshot) {
+    return cachedStateSnapshot;
+  }
+
+  cachedRawSnapshot = raw;
   if (!raw) {
-    return createInitialState();
+    cachedStateSnapshot = serverStateSnapshot;
+    return cachedStateSnapshot;
   }
 
   try {
-    return JSON.parse(raw) as AppState;
+    cachedStateSnapshot = JSON.parse(raw) as AppState;
   } catch {
-    return createInitialState();
+    cachedStateSnapshot = serverStateSnapshot;
   }
+
+  return cachedStateSnapshot;
+}
+
+function getServerStateSnapshot() {
+  return serverStateSnapshot;
+}
+
+function subscribeToStoredState(onStoreChange: () => void) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(STORE_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(STORE_EVENT, onStoreChange);
+  };
+}
+
+function saveStoredStateSnapshot(state: AppState) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const raw = JSON.stringify(state);
+  cachedRawSnapshot = raw;
+  cachedStateSnapshot = state;
+
+  try {
+    window.localStorage.setItem(STORAGE_KEY, raw);
+  } catch {
+    // Keep the in-memory snapshot usable even if localStorage is unavailable.
+  }
+
+  window.dispatchEvent(new Event(STORE_EVENT));
 }
 
 interface AppStoreValue {
@@ -94,13 +148,14 @@ interface AppStoreValue {
 const AppStoreContext = createContext<AppStoreValue | null>(null);
 
 export function AppStoreProvider({ children }: PropsWithChildren) {
-  const [state, setState] = useState<AppState>(() => loadInitialState());
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-  }, [state]);
+  const state = useSyncExternalStore(
+    subscribeToStoredState,
+    getStoredStateSnapshot,
+    getServerStateSnapshot,
+  );
+  const setState = useCallback((updater: (current: AppState) => AppState) => {
+    saveStoredStateSnapshot(updater(getStoredStateSnapshot()));
+  }, []);
 
   const selectedCompany = useMemo(
     () => state.companies.find((company) => company.id === state.selectedCompanyId) ?? state.companies[0],
@@ -123,7 +178,7 @@ export function AppStoreProvider({ children }: PropsWithChildren) {
       appendAudit(next, "Демо-данные загружены", "fixtures", "Состояние сброшено к учебным данным.");
       return next;
     });
-  }, [appendAudit]);
+  }, [appendAudit, setState]);
 
   const switchCompany = useCallback(
     (companyId: string) => {
@@ -134,7 +189,7 @@ export function AppStoreProvider({ children }: PropsWithChildren) {
         return next;
       });
     },
-    [appendAudit],
+    [appendAudit, setState],
   );
 
   const setRole = useCallback(
@@ -145,7 +200,7 @@ export function AppStoreProvider({ children }: PropsWithChildren) {
         return next;
       });
     },
-    [appendAudit],
+    [appendAudit, setState],
   );
 
   const updateMapping = useCallback(
@@ -171,7 +226,7 @@ export function AppStoreProvider({ children }: PropsWithChildren) {
         return next;
       });
     },
-    [appendAudit],
+    [appendAudit, setState],
   );
 
   const importTrialBalance = useCallback(
@@ -189,7 +244,7 @@ export function AppStoreProvider({ children }: PropsWithChildren) {
         return next;
       });
     },
-    [appendAudit],
+    [appendAudit, setState],
   );
 
   const applyRules = useCallback(() => {
@@ -212,7 +267,7 @@ export function AppStoreProvider({ children }: PropsWithChildren) {
       );
       return next;
     });
-  }, [appendAudit]);
+  }, [appendAudit, setState]);
 
   const approveTransformation = useCallback(() => {
     setState((current) => {
@@ -220,7 +275,7 @@ export function AppStoreProvider({ children }: PropsWithChildren) {
       appendAudit(next, "Трансформация согласована", "approval", "Менеджер отметил расчёт как готовый к демонстрации.");
       return next;
     });
-  }, [appendAudit]);
+  }, [appendAudit, setState]);
 
   const recordExport = useCallback(
     (format: "Excel" | "JSON" | "XML") => {
@@ -230,7 +285,7 @@ export function AppStoreProvider({ children }: PropsWithChildren) {
         return next;
       });
     },
-    [appendAudit],
+    [appendAudit, setState],
   );
 
   const value = useMemo<AppStoreValue>(
